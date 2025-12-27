@@ -2,7 +2,7 @@
 
 The Implementation of Paper: MGPD-Net: [A Multi-Granularity Prototypical Debiasing Network for Few-Shot Medical Image Segmentation]()
 
-![](./fig.png)
+![]()
 
 #### Abstract
 
