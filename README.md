@@ -6,7 +6,7 @@ The Implementation of Paper: MGPD-Net: [A Multi-Granularity Prototypical Debiasi
 
 #### Abstract
 
-Few-shot Medical Image Segmentation (FSMIS) is a more promising solution for medical image segmentation tasks where high-quality annotations are naturally scarce. However, current mainstream methods primarily focus on extracting holistic representations from support images with large intra-class variations in appearance and background, and encounter difficulties in adapting to query images. In this work, we present an approach to extract multiple representative sub-regions from a given support medical image, enabling fine-grained selection over the generated image regions. Specifically, the foreground of the support image is decomposed into distinct regions, which are subsequently used to derive region-level representations via a designed Regional Prototypical Learning (RPL) module. We then introduce a novel Prototypical Representation Debiasing (PRD) module based on a two-way elimination mechanism which suppresses the disturbance of regional representations by a self-support, Multi-direction Self-debiasing (MS) block, and a support-query, Interactive Debiasing (ID) block. Finally, an Assembled Prediction (AP) module is devised to balance and integrate predictions of multiple prototypical representations learned using stacked PRD modules. Results obtained through extensive experiments on three publicly accessible medical imaging datasets demonstrate consistent improvements over the leading FSMIS methods.
+Abstract The core challenge in Few-Shot Medical Image Segmentation (FSMIS) is representation entanglement, where stable class commonalities (e.g., anatomical structures) and variable sample individualities (e.g., textures) are conflated into a single feature, inherently introducing sampling bias and limiting generalization to unseen samples. While prior works attempt to mitigate this via complex feature interactions, they lack mechanisms to actively decouple these distinct semantics at their origin. To address this, we propose the Multi-Granularity Prototypical Debiasing Network (MGPD-Net), which: (1) explicitly decouples features into semantically orthogonal Paradigm Prototypes (for commonalities) and Appearance Prototypes (for individualities) via a learnable penalty; (2) introduces an Asymmetric Dual Stream Purification (ADSP) module, utilizing Paradigm Prototypes to calibrate global morphology via a Structure Calibration Stream, and Appearance Prototypes to enrich local details via an Appearance Enrichment Stream; and (3) transforms FSMIS from passive prototype matching to an active query feature debiasing process. Experiments on SABS CT and CHAOS MRI (1-shot) yield DSC scores of 76.27% and 80.68%, respectively. Achieving state-of-the-art performance without auxiliary modalities or complex architectures (e.g., Mamba models), our method validates the efficiency and robustness of this debiasing paradigm.
 
 # Getting started
 
@@ -53,14 +53,4 @@ Run `./script/test.sh`
 
 Our implementation is based on the works: [SSL-ALPNet](https://github.com/cheng-01037/Self-supervised-Fewshot-Medical-Image-Segmentation), [ADNet](https://github.com/sha168/ADNet), [QNet](https://github.com/ZJLAB-AMMI/Q-Net), [PAMI]([GitHub - YazhouZhu19/Partition-A-Medical-Image: [IEEE TIM 2024] Partition A Medical Image: Extracting Multiple Representative Sub-Regions for Few-shot Medical Image Segmentation](https://github.com/YazhouZhu19/Partition-A-Medical-Image))
 
-## Citation
 
-```bibtex
-@article{zhu2024partition,
-  title={Partition-A-Medical-Image: Extracting Multiple Representative Sub-regions for Few-shot Medical Image Segmentation},
-  author={Zhu, Yazhou and Wang, Shidong and Xin, Tong and Zhang, Zheng and Zhang, Haofeng},
-  journal={IEEE Transactions on Instrumentation and Measurement},
-  year={2024},
-  publisher={IEEE}
-}
-```
