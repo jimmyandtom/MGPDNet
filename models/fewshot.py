@@ -383,7 +383,6 @@ class FewShotSeg(nn.Module):
 
         # Compute loss #
         align_loss = torch.zeros(1).to(self.device)
-        mse_loss = torch.zeros(1).to(self.device) 
         loss_qry = torch.zeros(1).to(self.device) 
         contrastive_loss = torch.zeros(1).to(self.device)
         outputs = []
@@ -449,7 +448,7 @@ class FewShotSeg(nn.Module):
 
             for n in range(len(supp_fts)):    
                 current_qry_fts = qry_fts[n][epi]
-                # --- Stage 2: Fine-grained Enhancement with Diverse Prototypes ---
+                # --- Fine-grained Enhancement with Diverse Prototypes ---
                
                 refined_fts_stage2 = self.query_refiner(
                                                 qry_fts=current_qry_fts,
@@ -486,18 +485,11 @@ class FewShotSeg(nn.Module):
                                                 [refined_qry_fts[n] for n in range(len(qry_fts))],
                                                 preds, supp_mask[epi])
                 align_loss += align_loss_epi
-            
-            # Mse alignment loss
-            if train:
-                mse_loss_epi = self.proto_alignLoss([supp_fts[n][epi] for n in range(len(supp_fts))],
-                                                    [refined_qry_fts[n] for n in range(len(qry_fts))],
-                                                    preds, supp_mask[epi], fg_prototypes)
-                mse_loss += mse_loss_epi
 
         output = torch.stack(outputs, dim=1)  # N x B x (1 + Wa) x H x W
         output = output.view(-1, *output.shape[2:])
 
-        return output, align_loss / supp_bs, mse_loss / supp_bs, loss_qry / supp_bs, 0.02 * contrastive_loss
+        return output, align_loss / supp_bs, loss_qry / supp_bs, 0.02 * contrastive_loss
 
     def getPred(self, fts, prototype, thresh):
         """
@@ -598,35 +590,4 @@ class FewShotSeg(nn.Module):
                 loss += self.criterion(log_prob, supp_label[None, ...].long()) / n_shots / n_ways
 
         return loss
-
-    def proto_alignLoss(self, supp_fts, qry_fts, pred, fore_mask, supp_prototypes):
-        n_ways, n_shots = len(fore_mask), len(fore_mask[0])
-
-        # Get query mask
-        pred_mask = pred.argmax(dim=1, keepdim=True).squeeze(1)  # N x H' x W'
-        binary_masks = [pred_mask == i for i in range(1 + n_ways)]
-        skip_ways = [i for i in range(n_ways) if binary_masks[i + 1].sum() == 0]
-        pred_mask = torch.stack(binary_masks, dim=0).float()  # (1 + Wa) x N x H' x W'
-
-        # Compute the support loss
-        loss_sim = torch.zeros(1).to(self.device)
-        for way in range(n_ways):
-            if way in skip_ways:
-                continue
-            # Get the query prototypes
-            for shot in range(n_shots):
-                # Get prototypes
-                qry_fts_ = [[self.getFeatures(qry_fts[n], pred_mask[way + 1])] for n in range(len(qry_fts))]
-                fg_prototypes = [self.getPrototype([qry_fts_[n]]) for n in range(len(supp_fts))]
-
-                # Combine prototypes from different scales
-                fg_prototypes = [self.alpha[n] * fg_prototypes[n][way] for n in range(len(supp_fts))]
-                fg_prototypes = torch.sum(torch.stack(fg_prototypes, dim=0), dim=0) / torch.sum(self.alpha)
-                supp_prototypes_ = [self.alpha[n] * supp_prototypes[n][way] for n in range(len(supp_fts))]
-                supp_prototypes_ = torch.sum(torch.stack(supp_prototypes_, dim=0), dim=0) / torch.sum(self.alpha)
-
-                # Compute the MSE loss
-                loss_sim += self.criterion_MSE(fg_prototypes, supp_prototypes_)
-
-        return loss_sim
 
