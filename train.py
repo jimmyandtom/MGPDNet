@@ -110,12 +110,12 @@ def main(_run, _config, _log):
             query_labels = torch.cat([query_label.long().cuda() for query_label in sample['query_labels']], dim=0)
 
             # Compute outputs and losses.
-            query_pred, align_loss, mse_loss, qry_loss, contrastive_loss = model(support_images, support_fg_mask, query_images, qry_mask=query_labels, train=True)
+            query_pred, align_loss, qry_loss, contrastive_loss = model(support_images, support_fg_mask, query_images, qry_mask=query_labels, train=True)
 
             query_loss = criterion(torch.log(torch.clamp(query_pred, torch.finfo(torch.float32).eps,
                                                         1 - torch.finfo(torch.float32).eps)), query_labels)
 
-            loss = query_loss + align_loss + mse_loss + qry_loss + contrastive_loss
+            loss = query_loss + align_loss + qry_loss + contrastive_loss
 
             # Compute gradient and do SGD step.
             for param in model.parameters():
@@ -158,3 +158,4 @@ def main(_run, _config, _log):
             i_iter += 1
     _log.info('End of training.')
     return 1
+
