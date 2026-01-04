@@ -117,7 +117,7 @@ def main(_run, _config, _log):
                     query_label_s = query_label[0][idx_[sub_chunck]:idx_[sub_chunck + 1]]# C' x 3 x H x W
                     query_pred_s = []
                     for i in range(query_image_s.shape[0]):
-                        _pred_s, _, _, _, _ = model([support_image_s], [support_fg_mask_s], [query_image_s[[i]]], [query_label_s[[i]]], train=False)  # 1 x 2 x H x W  # 1 x 2 x H x W
+                        _pred_s, _, _, _ = model([support_image_s], [support_fg_mask_s], [query_image_s[[i]]], [query_label_s[[i]]], train=False)  # 1 x 2 x H x W  # 1 x 2 x H x W
                         query_pred_s.append(_pred_s)
                     query_pred_s = torch.cat(query_pred_s, dim=0)
                     query_pred_s = query_pred_s.argmax(dim=1).cpu()
@@ -146,4 +146,5 @@ def main(_run, _config, _log):
 
     _log.info(f'Whole mean Dice: {dict_Avg(class_dice)}')
     _log.info(f'End of validation.')
+
     return 1
