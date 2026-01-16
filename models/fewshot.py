@@ -234,11 +234,7 @@ class DropPath(nn.Module):
 
     def forward(self, x):
         return drop_path(x, self.drop_prob, self.training, self.scale_by_keep)
-from collections import OrderedDict
-import math
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
+
 class HybridGraphRefiner(nn.Module):
     def __init__(self, in_channels, hid_channels, drop_path_rate=0.1):
         super(HybridGraphRefiner, self).__init__()
