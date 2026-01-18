@@ -13,7 +13,7 @@ EXCLUDE_LABEL=[1,2,3,4]
 # TEST=1234  # flag for folder name, '1234' for not excluding any labels,  '14' for excluding label [2,3], '23' for excluding label [1,4]
 USE_GT=False
 ###### Training configs ######
-NSTEP=50000
+NSTEP=50000 
 DECAY=0.80
 
 MAX_ITER=3000 # defines the size of an epoch
