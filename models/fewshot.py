@@ -125,7 +125,7 @@ class GraphAttentionLayer(nn.Module):
             return F.elu(h_prime)
         else:
             return h_prime
-class GraphAwarePrototypeGenerator(nn.Module):
+class MPE(nn.Module):
     def __init__(self, num_archetypes, num_contextuals_per_archetype, in_channels, criterion_diversity, 
                  k_neighbors=10, max_graph_nodes=512, top_nodes_per_archetype=32):
         super().__init__()
@@ -234,14 +234,13 @@ class DropPath(nn.Module):
 
     def forward(self, x):
         return drop_path(x, self.drop_prob, self.training, self.scale_by_keep)
+        
 from collections import OrderedDict
 import math
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-class HybridGraphRefiner(nn.Module):
+
+class ADSP(nn.Module):
     def __init__(self, in_channels, hid_channels, drop_path_rate=0.1):
-        super(HybridGraphRefiner, self).__init__()
+        super(ADSP, self).__init__()
         
         # --- Core 1: Guided Self-Attention (for Structure) ---
         self.norm_self1 = nn.LayerNorm(in_channels)
@@ -321,7 +320,7 @@ class FewShotSeg(nn.Module):
         self.adaptive_pool = nn.AdaptiveAvgPool1d(self.fg_num)
 
         self.criterion_diversity = PrototypeDiversityLoss()
-        self.prototype_generator = GraphAwarePrototypeGenerator(
+        self.prototype_generator = MPE(
             num_archetypes=8,
             num_contextuals_per_archetype=7,
             in_channels=512,
@@ -330,7 +329,7 @@ class FewShotSeg(nn.Module):
             max_graph_nodes=512,
         )
         
-        self.query_refiner = HybridGraphRefiner(in_channels=512, hid_channels=256)
+        self.query_refiner = ADSP(in_channels=512, hid_channels=256)
         self.proj_low = nn.Conv2d(256, 512, kernel_size=1, bias=False)
     def forward(self, supp_imgs, supp_mask, qry_imgs, qry_mask, train=False, t_loss_scaler=1, n_iters=30):
         """
